@@ -22,7 +22,7 @@
         ((atom? pat)
          (if (atom? exp)
              (if (eq? pat exp)
-                 dict
+                 dict 
                  'failed)
              'failed))
         ((arbitrary-constant? pat)
