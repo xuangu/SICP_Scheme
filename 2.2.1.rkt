@@ -40,6 +40,27 @@
       (my-list-append (reverse-list-recur (cdr l)) (list (car l)))))
 
 ;;exercise-2.19
+(define us-coins (list 50 10 25 5 1))
+(define uk-coins (list 100 50 10 20 5 2 1 0.5))
+
+(define (cc amount coin-values)
+  (cond ((= 0 amount) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else
+         (+ (cc amount
+                (except-first-denomination coin-values))
+            (cc (- amount
+                   (first-denomination coin-values))
+                coin-values)))))
+
+(define (except-first-denomination coin-values)
+  (cdr coin-values))
+
+(define (first-denomination coin-values)
+  (car coin-values))
+
+(define (no-more? coin-values)
+  (null? coin-values))
 
 
 ;;example change-count
@@ -48,7 +69,7 @@
     (cond ((= 0 remainder-account) 1)
           ((or (< remainder-account 0) (= kinds-of-coins 0)) 0)
           (else (+ (calc-count remainder-account (- kinds-of-coins 1))
-                   (calc-count (- remainder-account (first-coin-value 1)) kinds-of-coins)))))
+                   (calc-count (- remainder-account (first-coin-value kinds-of-coins)) kinds-of-coins)))))
   (calc-count account 5))
 
 (define (first-coin-value coin-kind-order)
@@ -58,8 +79,19 @@
         ((= coin-kind-order 4) 5)
         ((= coin-kind-order 5) 1)))
 
+;; exercise 2.20
+(define (same-parity . sequence)
+  (define (combine parity-flag list)
+    (if (null? list) '()
+        (if (same? parity-flag (car list))
+            (cons parity-flag (car list))
+            (combine parity-flag (cdr list)))))
+  (if (null? sequence) '()
+      (combine (car sequence) (cdr sequence))))
 
 
-
+(define (same? first next)
+  (or (and (odd? first) (odd? next))
+      (and (even? first) (even? next))))
 
       
