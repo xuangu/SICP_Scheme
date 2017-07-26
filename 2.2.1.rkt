@@ -79,13 +79,13 @@
         ((= coin-kind-order 4) 5)
         ((= coin-kind-order 5) 1)))
 
-;; exercise 2.20
-(define (same-parity . sequence)
+;; exercise 2.20  这种想法不对
+#|(define (same-parity . sequence)
   (define (combine parity-flag list)
-    (if (null? list) '()
-        (if (same? parity-flag (car list))
-            (cons parity-flag (car list))
-            (combine parity-flag (cdr list)))))
+    (cond ((null? list) '())
+          ((same? parity-flag (car list))
+           (cons parity-flag (combine parity-flag (cdr list))))
+          (else (combine parity-flag (cdr list)))))
   (if (null? sequence) '()
       (combine (car sequence) (cdr sequence))))
 
@@ -93,5 +93,5 @@
 (define (same? first next)
   (or (and (odd? first) (odd? next))
       (and (even? first) (even? next))))
+|#
 
-      
