@@ -95,3 +95,93 @@
       (and (even? first) (even? next))))
 |#
 
+(define (same-parity . sequence)
+  (cond ((odd? (car sequence))
+               (filter-list odd? sequence))
+         (else (filter-list even? sequence))))
+
+(define (filter-list pred list)
+  (cond ((null? list) '())
+        ((pred (car list))
+               (cons (car list)
+                     (filter-list pred (cdr list))))
+        (else (filter-list pred (cdr list)))))
+
+;; exercise 2.21
+;; recursive
+(define (square-list-rec list)
+  (if (null? list)
+      '()
+      (cons (square (car list))
+            (square-list-rec (cdr list)))))
+
+;; map
+(define (square-list-map list)
+  (map (lambda (x)
+         (* x x))
+       list))
+
+(define (square x)
+  (* x x))
+
+
+;; exercise 2.2
+;; test case 如下：(((() . 1) . 4) . 9)
+(define (square-list-iter list)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter list '()))
+
+
+#|
+(define (square-list-iter list)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons (square (car things))
+                    answer))))
+  (iter list '()))
+|#
+
+
+;; exercise 2.23
+(define (my-for-each proc items)
+  (define (proc-iter items)
+    (if (null? items)
+        'done
+        (begin    ;; 注意begin过程的使用
+          (proc (car items))
+          (proc-iter (cdr items)))))
+  (proc-iter items))
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
