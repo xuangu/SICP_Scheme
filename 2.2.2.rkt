@@ -146,3 +146,43 @@ test case:
                 (deep-for-each proc (cdr items))))))
 
 
+;; exercise 2.30
+(define (square-tree-rec tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (square tree))
+        (else (cons (square-tree-rec (car tree))
+                    (square-tree-rec (cdr tree))))))
+
+(define (square x)
+  (* x x))
+
+(define (square-tree-map tree)
+  (map (lambda (tree)
+         (if (pair? tree)
+             (square-tree-map tree)
+             (square tree)))
+       tree)) 
+
+;; exercise 2.31
+(define (tree-map proc tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (proc tree))
+        (else (cons (tree-map proc (car tree))
+                     (tree-map proc (cdr tree))))))
+
+;; exercise 2.32
+(define (subsets-1 s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (x)
+                            (cons (car s) x))
+                          rest)))))
+
+(define (subsets s)
+    (if (null? s)
+        (list '())
+        (let ((rest (subsets (cdr s))))
+            (append rest (map (lambda (x)
+                                (cons (car s) x))
+                              rest)))))
