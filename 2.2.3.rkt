@@ -164,4 +164,188 @@
              '()
              sequence))
 
-  
+#|
+(flatmap (lambda (x)
+             (filter (lambda (item)
+                       (> item 5))
+                     (list 1 2 6 7)))
+           (list 10 11 12))
+|#
+(define (flatmap proc seq)
+  (accumulate append
+              '()
+              (map proc seq)))
+
+(define (integer-list n)
+  (accumulate append
+              '()
+              (map (lambda (i)
+                     (map (lambda (j) (list i j))
+                          (enumerate-interval 1 (- i 1))))
+                   (enumerate-interval 1 n))))
+                   
+(define (permutations-s s)
+  (if (null? s)
+      (list '())
+      (flatmap (lambda (x)
+                 (map (lambda (p) (cons x p))
+                      (permutations (remove x s))))
+               s)))
+
+(define (remove x s)
+  (filter (lambda (item)
+            (not (= x item)))
+          s))
+
+;; define my-filter
+(define (my-filter pred s)
+  (cond ((null? s) '())
+        ((pred (car s))
+         (cons (car s) (my-filter pred (cdr s))))
+        (else (my-filter pred (cdr s)))))
+
+;; exercise 2.40
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j)
+                    (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+
+(define (prime-sum-pairs n)
+  (map (lambda (item)
+         (list (+ (car item)
+                  (cadr item))
+               (car item)
+               (cadr item)))
+       (filter (lambda (x)
+                 (prime? (+ (car x)
+                           (cadr x))))
+               (unique-pairs n))))
+
+(define (prime? x)
+  (define (iter n i)
+    (cond ((< (/ n 2) i) #t)
+          ((= (remainder n i) 0) #f)
+          (else (iter n (+ 1 i)))))
+  (iter x 2))
+
+;; exercise 2.41
+(define (all-triples n)
+  (flatmap (lambda (i)
+             (map (lambda (jk) (list i (car jk) (cadr jk)))
+                  (flatmap (lambda (j)
+                             (map (lambda (k)
+                                    (list j k))
+                                  (enumerate-interval 1 (- j 1))))
+                      (enumerate-interval 1 (- i 1)))))
+           (enumerate-interval 1 n)))
+
+(define (sum-equal-s-pairs s n)
+  (filter (lambda (triple)
+            (= s (+ (car triple)
+                    (cadr triple)
+                    (caddr triple))))
+          (all-triples n)))
+
+;; exercise 2.42
+(define (queens board-size)
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions)
+           (safe? k positions))
+         (flatmap
+          (lambda (rest-of-queens)
+            (map (lambda (new-row)
+                   (adjoin-position new-row k rest-of-queens))
+                 (enumerate-interval 1 board-size)))
+          (queen-cols (- k 1))))))
+  (queen-cols board-size))
+
+(define empty-board '())
+
+(define (adjoin-position new-row k rest-of-queens)
+  (cons new-row rest-of-queens))
+
+(define (safe? k positions)
+  (iter-check (car positions)
+              (cdr positions)
+              1))
+
+(define (iter-check new-row rest-queen-rows i)
+  (if (null? rest-queen-rows)
+      #t
+      (let ((current-row (car rest-queen-rows)))
+        (if
+         (or (= new-row current-row)
+             (= new-row (+ current-row i))
+             (= new-row (- current-row i)))
+         #f
+         (iter-check
+          new-row
+          (cdr rest-queen-rows)
+          (+ i 1))))))
+
+(define (postion-xy position-row)
+  (define col 9)
+  (map (lambda (row)
+         (begin
+           (set! col (- col 1))
+           (list row col)))
+       position-row))
+
+(define (make-diagonal-position-list position n)
+  (let ((row (car position))
+        (column (cadr position)))
+    (append (map
+             (lambda (arg1 arg2)
+               (list (+ (car arg1)
+                        (car arg2))
+                     (+ (cadr arg1)
+                        (cadr arg2))))
+             (map (lambda (x)
+                    (list row column))
+                  (enumerate-interval 1 (- n column)))
+             (map (lambda (x) (list x x))
+                  (enumerate-interval 1 (- n column))))
+            (map
+             (lambda (arg1 arg2)
+               (list (- (car arg1)
+                        (car arg2))
+                     (- (cadr arg1)
+                        (cadr arg2))))
+             (map (lambda (x)
+                    (list row column))
+                  (enumerate-interval 1 (- row 1)))
+             (map (lambda (x) (list x x))
+                  (enumerate-interval 1 (- row 1)))))))
+
+
+(define (make-position-xy position-rows k)
+  (map (lambda (row column)
+         (list row column))
+       position-rows
+       (reverse (enumerate-interval k 8))))
+
+#|
+> (contains? (list (list 1 2) (list 3 4) (list 5 6)) (list 1 2))
+#t
+> (contains? (list (list 1 2) (list 3 4) (list 5 6)) (list 8 2))
+|#
+(define (contains? l e)
+  (cond
+    ((null? l) #f)
+    ((same-position? (car l) e) #t)
+    (else (contains? (cdr l) e))))
+
+(define (same-position? p1 p2)
+  (and (= (car p1)
+          (car p2))
+       (= (cadr p1)
+          (cadr p2))))
+
+
+
+;; exercise 2.43
